@@ -1,21 +1,18 @@
-import logging
+from logging import getLogger
 import time
-import fetch
-import util
+from scrapper import util
+
+LOG = getLogger(__name__)
 
 
-async def get(session, url="https://idownloadcoupon.com/product-category/100off/"):
+async def get(session, url="https://idownloadcoupon.com/product-category/100off/") -> set:
+    url_with_ad = set()
     links_udemy = set()
     start = time.time()
 
-    cont = await fetch.get_all(session, url)
-    if cont:
-        for html in cont:  # type: ignore
-            links_udemy = util.coupon_extract_idc(html=html)
+    url_with_ad = await util.get_links(session, url, "a", {"class": "button product_type_external"})
+    links_udemy = util.idc_strip_and_clean(url_with_ad)
 
-    num_calls = 1
     total_time = time.time() - start
-    logging.getLogger('IdownloadCoupon Scraping').debug(
-        "It took {} seconds to make {} calls. we get {} results".format(total_time, num_calls, len(links_udemy)))
-
+    LOG.debug("Took a total of {} second".format(total_time))
     return links_udemy

@@ -1,33 +1,22 @@
-from bs4 import BeautifulSoup
-import logging
+from logging import getLogger
 import time
+# local import
+from scrapper import util
 
-import fetch
-import util
+LOG = getLogger(__name__)
 
 
-async def get(session, url="https://freebiesglobal.com/dealstore/udemy"):
-    link_card = set()
+async def get(session, url="https://freebiesglobal.com/dealstore/udemy") -> set:
+    url_first_layer = set()
     links_udemy = set()
     start = time.time()
-    num_calls = 1
 
-    cont = await fetch.get_all(session, url)
-    if cont:
-        for html in cont:
-            soup = BeautifulSoup(html, "html.parser")
-            card = soup.find_all(
-                "a", class_="img-centered-flex rh-flex-center-align rh-flex-justify-center")
-            link_card = [course.get("href") for course in card]
+    url_first_layer = await util.get_links(session, url, "a", {
+        "class": "img-centered-flex rh-flex-center-align rh-flex-justify-center"})
 
-    cont = await fetch.get_all(session, link_card)
-    num_calls += len(link_card)
-    if cont:
-        for html in cont:
-            link_udemy = util.coupon_extract(html=html)
-            links_udemy.add(link_udemy)
+    links_udemy = await util.get_links(session, url_first_layer, "a", {"class": "re_track_btn btn_offer_block"}, limit=1)
 
     total_time = time.time() - start
-    logging.getLogger('FreebiesGlobal Scraping').debug(
-        "It took {} seconds to make {} calls. we get {} results".format(total_time, num_calls, len(links_udemy)))
+    LOG.debug("Took a total of {} second".format(total_time))
+
     return links_udemy
