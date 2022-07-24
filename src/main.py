@@ -1,16 +1,12 @@
-import logging
-import aiohttp
 import asyncio
-# local import
-from scrapper import idownloadcoupon
-from scrapper import tutorialbar
-from scrapper import freebiesglobal
-from scrapper import discudemy
-import bot_telegram
-import bot_reddit
+import logging
+import time
+import aiohttp
 import db_controller
+# local import
 import util
-
+from bot import reddit, telegram
+from scrapper import discudemy, freebiesglobal, idownloadcoupon, tutorialbar
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S")
@@ -18,7 +14,7 @@ logging.basicConfig(filename="log.log", level=logging.DEBUG,
 
 async def main():
 
-    async with aiohttp.ClientSession(raise_for_status=True, connector=aiohttp.TCPConnector(limit=100)) as session:
+    async with aiohttp.ClientSession(raise_for_status=True, connector=aiohttp.TCPConnector(limit=10), timeout=aiohttp.ClientTimeout(30)) as session:
         # ASYNC SCRAPPING
         links_udemy = set()
         tasks = []
@@ -41,10 +37,12 @@ async def main():
         elements_udemy = await util.extract(session, links)
 
         # Telegram Bot
-        await bot_telegram.send_messages(session, elements_udemy)
+        await telegram.send_messages(session, elements_udemy)
         # Reddit Bot
-        bot_reddit.send_message(elements_udemy)
+        reddit.send_messages(elements_udemy)
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    while True:
+        asyncio.run(main())
+        time.sleep(60*60)
