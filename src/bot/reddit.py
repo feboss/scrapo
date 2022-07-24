@@ -2,20 +2,32 @@ import praw
 import creds
 
 r = praw.Reddit(
-    client_id=creds.client_id,
-    client_secret=creds.client_secret,
-    password=creds.password,
-    user_agent=creds.user_agent,
-    username=creds.username,
+    client_id=creds.CLIENT_ID,
+    client_secret=creds.CLIENT_SECRET,
+    password=creds.PASSWORD,
+    user_agent=creds.USER_AGENT,
+    username=creds.USERNAME,
 )
+subreddit = r.subreddit(creds.SUBREDDIT)
 
-subreddit = r.subreddit(creds.subreddit)
+
+REDDIT_MSG_FORMAT = """
+>{subtitle}
 
 
-def send_message(elements):
+* ⭐️: Rating {stars}/5 ({tot_rating})
+
+
+* 👥: {students}
+
+
+[Get Course]({url})
+"""
+
+
+def send_messages(elements):
+
     for element in elements:
-        text = ">"+element["subtitle"] + "\n\n\n" \
-            + "* ⭐️: Rating  " + element["stars"] + "/5" + "(" + element["tot_rating"] + ")" + "\n\n" \
-            + "* 👥:  " + element["students"] + "\n\n\n" \
-            + "[Get Course](" + element["url"] + ")"
-        subreddit.submit(title=element["title"], selftext=text)
+        subreddit.submit(
+            title=element["title"],
+            selftext=REDDIT_MSG_FORMAT.format(**element))
