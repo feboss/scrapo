@@ -3,10 +3,12 @@ import logging
 import time
 import aiohttp
 import db_controller
+from dotenv import load_dotenv
 # local import
 import util
 from bot import reddit, telegram
 from scrapper import discudemy, freebiesglobal, idownloadcoupon, tutorialbar
+
 
 logging.basicConfig(filename="log.log", level=logging.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S")
