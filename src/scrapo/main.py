@@ -3,7 +3,6 @@ import logging
 import time
 import aiohttp
 import db_controller
-from dotenv import load_dotenv
 # local import
 import util
 from bot import reddit, telegram

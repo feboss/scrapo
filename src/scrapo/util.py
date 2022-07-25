@@ -1,5 +1,4 @@
 from urllib.parse import unquote
-
 from bs4 import BeautifulSoup
 import fetch
 

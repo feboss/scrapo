@@ -1,15 +1,17 @@
 import praw
-import creds
+from dotenv import load_dotenv
+from os import getenv
+
+load_dotenv()
 
 r = praw.Reddit(
-    client_id=creds.CLIENT_ID,
-    client_secret=creds.CLIENT_SECRET,
-    password=creds.PASSWORD,
-    user_agent=creds.USER_AGENT,
-    username=creds.USERNAME,
+    client_id=getenv("CLIENT_ID"),
+    client_secret=getenv("CLIENT_SECRET"),
+    password=getenv("PASSWORD"),
+    user_agent=getenv("USER_AGENT"),
+    username=getenv("USERNAME")
 )
-subreddit = r.subreddit(creds.SUBREDDIT)
-
+subreddit = r.subreddit(getenv("SUBREDDIT"))
 
 REDDIT_MSG_FORMAT = """
 >{subtitle}

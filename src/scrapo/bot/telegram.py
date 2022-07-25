@@ -1,13 +1,14 @@
 import json
 import asyncio
-
-import aiohttp
+from dotenv import load_dotenv
+from os import getenv
 
 # local import
 import fetch
-import creds
 
-API_URL = f'https://api.telegram.org/bot{creds.BOT_TOKEN}/sendMessage'
+load_dotenv()
+
+API_URL = f'https://api.telegram.org/bot{getenv("BOT_TOKEN")}/sendMessage'
 
 TELEGRAM_MSG_FORMAT = """
 <a href="{url}">&#8288</a>
@@ -24,7 +25,7 @@ def prepare_message(elements: list) -> list:
     for element in elements:
         text = TELEGRAM_MSG_FORMAT.format(**element)
         data.append({
-                    "chat_id": creds.CHANNEL_ID,
+                    "chat_id": getenv("CHANNEL_ID"),
                     "text": text,
                     "parse_mode": "HTML",
                     "disable_web_page_preview": "False",
