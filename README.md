@@ -25,19 +25,13 @@ To run this project, you will need to add the following environment variables to
 - TELEGRAM
 
 `BOT_TOKEN`
-
 `CHANNEL_ID`
 
 - REDDIT
 
 `CLIENT_ID`
-
 `CLIENT_SECRET`
-
 `PASSWORD`
-
 `USER_AGENT`
-
 `USERNAME`
-
 `SUBREDDIT`
