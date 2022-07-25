@@ -1,59 +1,5 @@
-from urllib.parse import unquote
 from bs4 import BeautifulSoup
 import fetch
-
-
-def coupon_extract(start_position=0, end_position=0, html=""):
-    coupon_position = html.find("couponCode")
-
-    if coupon_position == -1:
-        return
-
-    # looking for the first character of the link "
-    for i in range(coupon_position, -1, -1):
-        if html[i] == '"':
-            start_position = i+1
-            break
-
-    # Looking for the last character of the link "
-    end_position = html.find('"', start_position)
-
-    # better we unquote the string
-    link_udemy = unquote(html[start_position:end_position])
-
-    # remove "/" before ?couponCode
-    slash_index = link_udemy.find("?couponCode")-1
-    if (link_udemy[slash_index] == "/"):
-        link_udemy = link_udemy[:slash_index] + link_udemy[slash_index+1:]
-
-    return link_udemy
-
-
-def coupon_extract_idc(start_position=0, end_position=0, html="") -> set:
-    # example link: ...ulp=https://www.udemy.com/course/java-io-tutorial-for-beginners?couponCode=EDUCBA3..."
-    # We found the common string couponCode and from there we iterate until we found the beginning and
-    # the end of the string
-
-    links_udemy = set()
-    while ((coupon_position := html.find("couponCode", end_position)) != -1):
-        # looking for the first character of the link =
-        for i in range(coupon_position, -1, -1):
-            if html[i] == '=':
-                start_position = i+1
-                break
-        # Looking for the last character of the link "
-        end_position = html.find('"', start_position)
-
-    # better we unquote the string
-        link_udemy = unquote(html[start_position:end_position])
-
-        # remove "/" before ?couponCode
-        slash_index = link_udemy.find("?couponCode")-1
-        if (link_udemy[slash_index] == "/"):
-            link_udemy = link_udemy[:slash_index] + link_udemy[slash_index+1:]
-
-        links_udemy.add(link_udemy)
-    return links_udemy
 
 
 async def extract(session, urls) -> list:
