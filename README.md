@@ -28,7 +28,7 @@ To run this project, you will need to add the following environment variables to
 
 `CHANNEL_ID`
 
-- #REDDIT
+- REDDIT
 
 `CLIENT_ID`
 
