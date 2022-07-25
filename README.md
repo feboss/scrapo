@@ -22,12 +22,14 @@ Hope to expand my knowledge of django or flask when i will add these functiional
 
 To run this project, you will need to add the following environment variables to your .env file
 
-- #TELEGRAM
+- TELEGRAM
+
 `BOT_TOKEN`
 
 `CHANNEL_ID`
 
 - #REDDIT
+
 `CLIENT_ID`
 
 `CLIENT_SECRET`
