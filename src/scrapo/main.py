@@ -14,15 +14,24 @@ logging.basicConfig(filename="log.log", level=logging.DEBUG,
 
 
 async def main():
-
-    async with aiohttp.ClientSession(raise_for_status=True, connector=aiohttp.TCPConnector(limit=10), timeout=aiohttp.ClientTimeout(30)) as session:
+    """
+    An asynchronous function that performs several tasks concurrently.
+    It uses the aiohttp library to make HTTP requests and gather data from multiple websites.
+    It also interacts with a database and sends messages using the Telegram and Reddit bots.
+    """
+    async with aiohttp.ClientSession(
+        raise_for_status=True,
+        connector=aiohttp.TCPConnector(limit=10),
+        timeout=aiohttp.ClientTimeout(30)
+    ) as session:
         # ASYNC SCRAPPING
         links_udemy = set()
-        tasks = []
-        tasks.append(asyncio.create_task(idownloadcoupon.get(session)))
-        tasks.append(asyncio.create_task(discudemy.get(session)))
-        tasks.append(asyncio.create_task(freebiesglobal.get(session)))
-        tasks.append(asyncio.create_task(tutorialbar.get(session)))
+        tasks = [
+            idownloadcoupon.get(session),
+            discudemy.get(session),
+            freebiesglobal.get(session),
+            tutorialbar.get(session)
+        ]
         links = await asyncio.gather(*tasks)
         for link in links:
             links_udemy.update(link)
