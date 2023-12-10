@@ -4,14 +4,14 @@ from os import getenv
 
 load_dotenv()
 
-r = praw.Reddit(
+reddit_instance = praw.Reddit(
     client_id=getenv("CLIENT_ID"),
     client_secret=getenv("CLIENT_SECRET"),
     password=getenv("PASSWORD"),
     user_agent=getenv("USER_AGENT"),
     username=getenv("USERNAME")
 )
-subreddit = r.subreddit(getenv("SUBREDDIT"))
+target_subreddit = reddit_instance.subreddit(getenv("SUBREDDIT"))
 
 REDDIT_MSG_FORMAT = """
 >{subtitle}
@@ -27,9 +27,9 @@ REDDIT_MSG_FORMAT = """
 """
 
 
-def send_messages(elements):
+def post_courses_to_subreddit(courses):
 
-    for element in elements:
-        subreddit.submit(
-            title=element["title"],
-            selftext=REDDIT_MSG_FORMAT.format(**element))
+    for course in courses:
+        target_subreddit.submit(
+            title=course["title"],
+            selftext=REDDIT_MSG_FORMAT.format(**course))
