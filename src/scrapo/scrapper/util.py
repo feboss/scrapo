@@ -8,30 +8,27 @@ import fetch
 LOG = getLogger(__name__)
 
 
-async def get_links(session, url, *atrs, limit=None, inner=None) -> set:
-    start = time.time()
-    num_calls = 0
-    cont = None
-    cont = await fetch.get_all(session, url)
-    num_calls += len(cont)
-    result = set()
-    if cont:
-        for html in cont:
-            if html:
-                soup = BeautifulSoup(html, "html.parser")
-                card = soup.find_all(*atrs, limit=limit)
+async def fetch_links(session, url, *selectors, limit=None, inner=None) -> set:
+    start_time = time.time()
+    responses = await fetch.get_all(session, url)
+    num_requests = len(responses)
+    links = set()
+
+    if responses:
+        for response in responses:
+            if response:
+                soup = BeautifulSoup(response, "html.parser")
+                elements = soup.find_all(*selectors, limit=limit)
                 if inner:
-                    result.update({course.find(inner).get("href")
-                                  for course in card})
+                    links.update({element.find(inner).get("href") for element in elements})
                 else:
-                    result.update({course.get("href") for course in card})
+                    links.update({element.get("href") for element in elements})
 
-    total_time = time.time() - start
+    elapsed_time = time.time() - start_time
 
-    LOG.debug("Result: {} It took {} seconds for {} calls. we get {} results".format(
-        result, total_time, num_calls, len(result)))
+    LOG.debug(f"Result: {links} It took {elapsed_time} seconds for {num_requests} requests. We got {len(links)} results")
 
-    return result
+    return links
 
 
 def idc_strip_and_clean(links) -> set:
@@ -50,3 +47,8 @@ def idc_strip_and_clean(links) -> set:
 
 def uniform_link(links):
     pass
+def uniform_link(links):
+    uniform_links = set()
+    for link in links:
+        uniform_links.add(link.lower())
+    return uniform_links
