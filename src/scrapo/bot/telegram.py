@@ -4,41 +4,41 @@ from dotenv import load_dotenv
 from os import getenv
 
 # local import
-import fetch
+from . import fetch
 
 load_dotenv()
 
-API_URL = f'https://api.telegram.org/bot{getenv("BOT_TOKEN")}/sendMessage'
+TELEGRAM_API_URL = f'https://api.telegram.org/bot{getenv("BOT_TOKEN")}/sendMessage'
 
-TELEGRAM_MSG_FORMAT = """
+TELEGRAM_MESSAGE_TEMPLATE = """
 <a href="{url}">&#8288</a>
 📚 <strong>{title}</strong>
 
-⭐️: Rating  {stars}/5 ({tot_rating})
+⭐️: Rating  {stars}/5 ({total_ratings})
 
 👥: {students}
 """
 
 
-def prepare_message(elements: list) -> list:
-    data = []
-    for element in elements:
-        text = TELEGRAM_MSG_FORMAT.format(**element)
-        data.append({
-                    "chat_id": getenv("CHANNEL_ID"),
-                    "text": text,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": "False",
-                    "reply_markup": json.dumps({'inline_keyboard': [[{'text': "Get COURSE", 'url': element["url"]}]]})
-                    })
-    return data
+def prepare_telegram_messages(courses: list) -> list:
+    messages = []
+    for course in courses:
+        message_text = TELEGRAM_MESSAGE_TEMPLATE.format(**course)
+        messages.append({
+            "chat_id": getenv("CHANNEL_ID"),
+            "text": message_text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": "False",
+            "reply_markup": json.dumps({'inline_keyboard': [[{'text': "Get COURSE", 'url': course["url"]}]]})
+        })
+    return messages
 
 
-async def send_messages(session, elements: list, url=API_URL):
-    data = prepare_message(elements)
-    # Create a list of task for send message with bot.
-    # we have a rate limit of 20 message per minute
-    # the retry backoff will take care
+async def send_telegram_messages(session, courses: list, url=TELEGRAM_API_URL):
+    messages = prepare_telegram_messages(courses)
+    # Create a list of tasks for sending messages with the bot.
+    # We have a rate limit of 20 messages per minute
+    # The retry backoff will take care of this
     tasks = [asyncio.create_task(
-        fetch.get(session, url, params=parameter)) for parameter in data]
+        fetch.post(session, url, data=message)) for message in messages]
     await asyncio.gather(*tasks)
