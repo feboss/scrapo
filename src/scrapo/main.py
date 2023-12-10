@@ -13,7 +13,7 @@ logging.basicConfig(filename="log.log", level=logging.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S")
 
 
-async def main():
+async def scraping_cycle():
     """
     An asynchronous function that performs several tasks concurrently.
     It uses the aiohttp library to make HTTP requests and gather data from multiple websites.
@@ -25,7 +25,8 @@ async def main():
         timeout=aiohttp.ClientTimeout(30)
     ) as session:
         # ASYNC SCRAPPING
-        links_udemy = set()
+        # Initialize a set to store unique udemy links
+        udemy_links = set()
         tasks = [
             idownloadcoupon.get(session),
             discudemy.get(session),
@@ -33,15 +34,17 @@ async def main():
             tutorialbar.get(session)
         ]
         links = await asyncio.gather(*tasks)
+        # Combine all fetched links into a single set
         for link in links:
-            links_udemy.update(link)
+            udemy_links.update(link)
 
         # DATABASE
         connection = db_controller.create_connection("links.db")
         db_controller.create_table(connection)
 
         # ADD LINKS TO DB and RETURN the UPDATED ONE
-        links = db_controller.add_items(connection, links_udemy)
+        # Add fetched links to the database, ignoring duplicates
+        links = db_controller.add_items(connection, udemy_links)
 
         # Extract element from udemy links
         elements_udemy = await util.extract(session, links)
@@ -53,6 +56,9 @@ async def main():
 
 
 if __name__ == '__main__':
+    asyncio.run(scraping_cycle())
+
+async def main_loop():
     while True:
-        asyncio.run(main())
-        time.sleep(60*60)
+        await scraping_cycle()
+        await asyncio.sleep(3600)  # Wait for an hour before running again
